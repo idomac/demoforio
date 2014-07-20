@@ -4,6 +4,7 @@ import com.demofoio.crawler.job.Job;
 import com.demofoio.crawler.store.LinksStorage;
 
 import java.net.URI;
+import java.util.List;
 import java.util.concurrent.BlockingQueue;
 
 /**
@@ -54,12 +55,21 @@ public class PageHandler implements Runnable {
 
                 if (page.getStatusCode() == 200) {//OK 正常
 
-                    System.out.println("200");
+                    job.process(page);
+                    String contentType = page.getHeader("Content-Type");
+                    if(contentType.startsWith("text/html")) {
+                        List<URI> links = page.getLinks();
+                        for(URI link : links) {
+                            add(link);
+                        }
+                    }
 
                 }else if (page.getStatusCode() == 301 || page.getStatusCode() == 302) {
-
+                    // TODO handle case when location is relative
+                    URI location = new URI(page.getHeader("Location"));
+                    add(location);
                 }else {
-
+                    System.out.println(String.format("Skip [%s] because of status code %d", page.getUri(), page.getStatusCode()));
                 }
             } catch (Exception e) {
                 e.printStackTrace();

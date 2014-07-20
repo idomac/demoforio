@@ -49,7 +49,7 @@ public class Crawler {
         /**
          * http抓取线程
          */
-        HttpFetcher client = new HttpFetcher();
+        HttpFetcher client = new HttpFetcher(linksQueue,pagesQueue);
         client.fetch();
     }
 }
